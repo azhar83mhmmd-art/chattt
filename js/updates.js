@@ -1,9 +1,10 @@
 // Pembaruan: story teks / foto / video (24 jam), realtime penuh, tampil instan dari cache.
 import { sb, requireAuth, track, fetchProfiles, uploadWithProgress, errMsg } from './supabase.js';
+import { mountChannels } from './channels.js';
 import { $, $$, esc, icon, avatar, nameWithBadge, relTime, toast, setBusy, openModal, confirmDialog, debounce, mountShell } from './utils.js';
 
-const { profile: me } = await requireAuth({ shell: 'updates.html' });
-mountShell('updates.html', me.role === 'admin');
+const { profile: me } = await requireAuth({ shell: '/updates' });
+mountShell('/updates', me.role === 'admin');
 const body = $('#body');
 const VIS = { friends: ['Teman', 'users'], public: ['Semua', 'globe'], only_me: ['Hanya saya', 'lock'] };
 const DUR = 5000, MAX_IMG = 5 * 1048576, MAX_VID = 25 * 1048576, MAX_SEC = 30, FK = 'orvix:feed:' + me.id;
@@ -79,12 +80,15 @@ function card(g, mine) {
 function draw() {
   if (!body.isConnected) return;
   const gs = groups(), sl = $('.srail', body)?.scrollLeft || 0, others = gs.slice(1);
+  const keep = $('#chan', body);
   body.innerHTML = `<div class="shead"><div><h2>Status</h2><p class="dim">Story hilang otomatis setelah 24 jam</p></div><span class="live ${live ? 'on' : ''}" id="live"><i></i><b>${live ? 'Live' : 'Menyambung…'}</b></span></div>
   <div class="srail" role="list">${card(gs[0], true)}${others.map((g) => card(g, false)).join('')}</div>
-  ${others.length ? '' : `<div class="sempty">${icon('updates', 34)}<h3>Belum ada story dari teman</h3><p>Story teman muncul di sini secara langsung, dan hilang setelah 24 jam.</p><a class="btn sm" href="chat.html">${icon('userplus', 16)} Cari teman</a></div>`}
-  <h2 class="ssec">Saluran dan komunitas</h2><div class="card soon">${icon('globe', 22)}<div><b>Segera hadir</b><p class="muted sm">Saluran dan komunitas belum tersedia di ORVIX. Fitur ini akan muncul di sini setelah diaktifkan.</p></div></div>
+  ${others.length ? '' : `<div class="sempty">${icon('updates', 34)}<h3>Belum ada story dari teman</h3><p>Story teman muncul di sini secara langsung, dan hilang setelah 24 jam.</p><a class="btn sm" href="/chat">${icon('userplus', 16)} Cari teman</a></div>`}
+  <div id="chan"></div>
   <button class="sfab" id="newS" aria-label="Tambah story">${icon('plus', 26)}</button>`;
   $('.srail', body).scrollLeft = sl;
+  if (keep) $('#chan', body).replaceWith(keep);
+  mountChannels(me, $('#chan', body));
 }
 const setLive = (on) => { live = on; const el = $('#live'); if (el) { el.classList.toggle('on', on); el.lastElementChild.textContent = on ? 'Live' : 'Menyambung…'; } };
 body.onclick = (e) => {
