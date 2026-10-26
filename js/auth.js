@@ -3,17 +3,17 @@ import { sb, configured, errMsg } from './supabase.js';
 import { $, esc, icon, openModal, setBusy, toast, injectSprite } from './utils.js';
 injectSprite();
 
+const nextUrl = () => { const n = new URLSearchParams(location.search).get('next'); return n && /^\/[^/\\]/.test(n) ? n : '/chat'; };
 const params = new URLSearchParams(location.search);
 const recovery = location.hash.includes('type=recovery');
 if (!configured) $('#setup').classList.remove('hide');
 if (params.get('suspended')) toast('Akun kamu dinonaktifkan. Hubungi administrator.', 'error');
 if (params.get('noprofile')) toast('Profil tidak ditemukan. Coba daftar ulang atau hubungi administrator.', 'error');
 
-$('#btnAbout').onclick = (e) => { e.preventDefault(); $('#about').scrollIntoView({ behavior: 'smooth' }); };
 
 if (configured) {
   sb.auth.onAuthStateChange((ev) => { if (ev === 'PASSWORD_RECOVERY') showNewPassword(); });
-  sb.auth.getSession().then(({ data }) => { if (data.session && !recovery) location.replace('chat.html'); });
+  sb.auth.getSession().then(({ data }) => { if (data.session && !recovery) location.replace(nextUrl()); });
 }
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -86,7 +86,7 @@ function showAuth(mode = 'login') {
           if (!pw) return fail('Masukkan password.');
           setBusy(go, true, 'Masuk…');
           const { error } = await sb.auth.signInWithPassword({ email: em, password: pw });
-          if (error) throw error; location.replace('chat.html');
+          if (error) throw error; location.replace(nextUrl());
         } else if (md === 'register') {
           const dn = v('dn'), un = v('un').toLowerCase();
           if (!dn || dn.length > 40) return fail('Nama tampilan 1-40 karakter.');
@@ -95,7 +95,7 @@ function showAuth(mode = 'login') {
           setBusy(go, true, 'Mendaftar…');
           const { data: free, error: e1 } = await sb.rpc('username_available', { u: un });
           if (e1) throw e1; if (!free) { setBusy(go, false); return fail('Username sudah dipakai.'); }
-          await registerAccount(em, pw, un, dn); location.replace('chat.html');
+          await registerAccount(em, pw, un, dn); location.replace(nextUrl());
         } else {
           setBusy(go, true, 'Mengirim…');
           const { error } = await sb.auth.resetPasswordForEmail(em, { redirectTo: location.origin + location.pathname });
@@ -118,7 +118,7 @@ function showNewPassword() {
     setBusy(go, true, 'Menyimpan…');
     const { error } = await sb.auth.updateUser({ password: pw });
     if (error) { setBusy(go, false); er.textContent = errMsg(error); return; }
-    toast('Password diperbarui', 'success'); location.replace('chat.html');
+    toast('Password diperbarui', 'success'); location.replace(nextUrl());
   };
 }
 
