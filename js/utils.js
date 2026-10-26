@@ -40,6 +40,10 @@ const P = {
   refresh: '<path d="M20 11A8 8 0 0 0 5.5 7M4 4v4h4M4 13a8 8 0 0 0 14.5 4M20 20v-4h-4"/>',
   play: '<path d="M7 4.5v15l12-7.5z" fill="currentColor"/>',
   vol: '<path d="M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>',
+  megaphone: '<path d="M3 11v3a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1zM15 9a4 4 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/>',
+  share: '<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.9 7.6-4.3M8.2 13.1l7.6 4.3"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  clip: '<path d="m20 11-8.5 8.5a5 5 0 0 1-7-7L13 4a3.3 3.3 0 0 1 4.7 4.7L9.2 17.2a1.7 1.7 0 0 1-2.4-2.4L14 7.6"/>',
   mute: '<path d="M4 9v6h4l5 4V5L8 9zM17 9l5 6M22 9l-5 6"/>'
 };
 export const icon = (n, s = 20) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${P[n] || ''}</svg>`;
@@ -132,20 +136,20 @@ export function validateImage(file, maxMB) {
 export const extOf = (f) => ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' }[f.type]);
 
 // Navigasi: sidebar (desktop) + bottom nav (mobile)
-const NAV = [['chat.html', 'chat', 'Chat'], ['updates.html', 'updates', 'Pembaruan'], ['calls.html', 'phone', 'Panggilan'], ['profile.html', 'user', 'Profil']];
+const NAV = [['/chat', 'chat', 'Chat'], ['/updates', 'updates', 'Pembaruan'], ['/calls', 'phone', 'Panggilan'], ['/profile', 'user', 'Profil']];
 export function navHTML(active, isAdmin = false) {
   const items = NAV.map(([h, i, l]) => `<a href="${h}" class="${h === active ? 'on' : ''}" ${h === active ? 'aria-current="page"' : ''}>${icon(i, 22)}<span>${l}</span></a>`).join('');
-  const adm = isAdmin ? `<a href="admin.html" class="adm">${icon('shield', 22)}<span>Admin</span></a>` : '';
-  return `<aside class="side"><img src="assets/mark.png" alt="ORVIX" class="side-logo" width="40" height="40"><nav aria-label="Navigasi utama">${items}${adm}</nav></aside><nav class="bottom" aria-label="Navigasi utama">${items}</nav>`;
+  const adm = isAdmin ? `<a href="/admin" class="adm">${icon('shield', 22)}<span>Admin</span></a>` : '';
+  return `<aside class="side"><img src="/assets/mark.png" alt="ORVIX" class="side-logo" width="40" height="40"><nav aria-label="Navigasi utama">${items}${adm}</nav></aside><nav class="bottom" aria-label="Navigasi utama">${items}</nav>`;
 }
 // Navigasi sudah ada statis di HTML (tampil instan); fungsi ini hanya menyinkronkan tautan Admin dan memuat awal halaman lain.
 export function mountShell(active, isAdmin = false) {
   injectSprite();
   const nav = $('#nav'); if (!nav) return;
   if (!nav.firstElementChild) nav.innerHTML = navHTML(active, isAdmin);
-  else if (isAdmin && !nav.querySelector('a.adm')) nav.querySelectorAll('nav').forEach((n) => n.insertAdjacentHTML('beforeend', `<a href="admin.html" class="adm">${icon('shield', 22)}<span>Admin</span></a>`));
+  else if (isAdmin && !nav.querySelector('a.adm')) nav.querySelectorAll('nav').forEach((n) => n.insertAdjacentHTML('beforeend', `<a href="/admin" class="adm">${icon('shield', 22)}<span>Admin</span></a>`));
   else if (!isAdmin) nav.querySelectorAll('a.adm').forEach((a) => a.remove());
   if (mountShell.pre) return; mountShell.pre = 1;
   const idle = window.requestIdleCallback || ((f) => setTimeout(f, 500));
-  idle(() => NAV.forEach(([h]) => { if (h === active) return; for (const [rel, href] of [['modulepreload', 'js/' + h.replace('.html', '.js')], ['prefetch', h]]) { const l = document.createElement('link'); l.rel = rel; l.href = href; document.head.append(l); } }));
+  idle(() => NAV.forEach(([h]) => { if (h === active) return; for (const [rel, href] of [['modulepreload', '/js/' + h.slice(1) + '.js'], ['prefetch', h]]) { const l = document.createElement('link'); l.rel = rel; l.href = href; document.head.append(l); } }));
 }
