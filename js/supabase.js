@@ -25,15 +25,15 @@ export async function loadMyProfile() {
 const ME_KEY = 'orvix:me';
 export const cachedMe = () => { try { return JSON.parse(localStorage.getItem(ME_KEY) || 'null'); } catch { return null; } };
 export const cacheMe = (p) => { try { p ? localStorage.setItem(ME_KEY, JSON.stringify(p)) : localStorage.removeItem(ME_KEY); } catch { /* abaikan */ } };
-const bounce = async (q) => { cacheMe(null); await sb.auth.signOut(); location.replace('index.html' + q); return never(); };
+const bounce = async (q) => { cacheMe(null); await sb.auth.signOut(); location.replace('/' + q); return never(); };
 
 // Wajib dipanggil di setiap halaman aplikasi. Mengalihkan bila belum login.
 export async function requireAuth({ admin = false, shell = null } = {}) {
-  if (!configured) { location.replace('index.html?setup=1'); return never(); }
+  if (!configured) { location.replace('/?setup=1'); return never(); }
   const cm = cachedMe();
   if (shell) mountShell(shell, cm?.role === 'admin');
   const { data } = await sb.auth.getSession();
-  if (!data.session) { cacheMe(null); location.replace('index.html'); return never(); }
+  if (!data.session) { cacheMe(null); location.replace('/?next=' + encodeURIComponent(location.pathname + location.search)); return never(); }
   const user = data.session.user;
   let profile = cm && cm.id === user.id && (!admin || cm.role === 'admin') ? cm : null;
   const verify = async () => {
@@ -42,13 +42,13 @@ export async function requireAuth({ admin = false, shell = null } = {}) {
     catch (e) { if (/JWT|expired|401/i.test(errMsg(e))) return bounce(''); throw e; }
     if (!p) return bounce('?noprofile=1');
     if (p.is_suspended) return bounce('?suspended=1');
-    if (admin && p.role !== 'admin') { location.replace('chat.html'); return never(); }
+    if (admin && p.role !== 'admin') { location.replace('/chat'); return never(); }
     cacheMe(p); if (shell && (p.role === 'admin') !== (cm?.role === 'admin')) mountShell(shell, p.role === 'admin');
     return p;
   };
   if (profile) { verify().then((p) => p && Object.assign(profile, p)).catch(() => {}); }
   else profile = await verify();
-  sb.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') { cacheMe(null); cleanupAll(); location.replace('index.html'); } });
+  sb.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') { cacheMe(null); cleanupAll(); location.replace('/'); } });
   startPresence();
   return { user, profile };
 }
@@ -60,7 +60,7 @@ function startPresence() {
   document.addEventListener('visibilitychange', ping);
 }
 
-export async function logout() { cacheMe(null); cleanupAll(); await sb.auth.signOut(); location.replace('index.html'); }
+export async function logout() { cacheMe(null); cleanupAll(); await sb.auth.signOut(); location.replace('/'); }
 
 export async function fetchProfiles(ids) {
   ids = [...new Set(ids)].filter(Boolean); if (!ids.length) return new Map();
