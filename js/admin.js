@@ -18,7 +18,7 @@ const fmtDT = (d) => (d ? new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium'
 const NAV = [['dash', 'dash', 'Dashboard'], ['users', 'users', 'Pengguna'], ['reports', 'flag', 'Laporan'], ['audit', 'list', 'Audit log']];
 
 function drawSide() {
-  side.innerHTML = `<div class="brand"><img src="assets/mark.png" alt="" width="30" height="30">ORVIX Admin</div>${NAV.map(([k, i, l]) => `<button data-v="${k}" ${k === view ? 'aria-current="true"' : ''}>${icon(i, 18)} ${l}</button>`).join('')}<a class="back" href="chat.html">${icon('back', 18)} Ke aplikasi</a>`;
+  side.innerHTML = `<div class="brand"><img src="/assets/mark.png" alt="" width="30" height="30">ORVIX Admin</div>${NAV.map(([k, i, l]) => `<button data-v="${k}" ${k === view ? 'aria-current="true"' : ''}>${icon(i, 18)} ${l}</button>`).join('')}<a class="back" href="/chat">${icon('back', 18)} Ke aplikasi</a>`;
   $$('[data-v]', side).forEach((b) => b.onclick = () => { view = b.dataset.v; state.page = 0; drawSide(); go(); });
 }
 const fail = (e) => { main.innerHTML = `<div class="empty card"><h3>Gagal memuat</h3><p>${esc(errMsg(e))}</p><button class="btn" id="rt" style="margin-top:12px">Coba lagi</button></div>`; $('#rt').onclick = go; };
