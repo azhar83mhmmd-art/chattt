@@ -1,7 +1,9 @@
-// Riwayat panggilan: fitur panggilan belum diimplementasikan, ditampilkan secara jujur.
+// Panggilan: fitur belum aktif, ditampilkan sebagai "Segera hadir".
 import { requireAuth } from './supabase.js';
 import { $, icon, mountShell } from './utils.js';
-const { profile } = await requireAuth({ shell: 'calls.html' });
-mountShell('calls.html', profile.role === 'admin');
-$('#body').innerHTML = `<div class="tabs" role="tablist" aria-label="Filter riwayat"><button class="tab" role="tab" aria-selected="true" disabled>Semua</button><button class="tab" role="tab" aria-selected="false" disabled>Masuk</button><button class="tab" role="tab" aria-selected="false" disabled>Keluar</button><button class="tab" role="tab" aria-selected="false" disabled>Tidak terjawab</button></div>
-<div class="empty card">${icon('phone', 40)}<h3>Panggilan belum tersedia</h3><p>Panggilan suara dan video belum diaktifkan di ORVIX. Riwayat, durasi, dan tombol panggil kembali akan muncul di sini setelah fitur ini aktif.</p><p class="dim" style="margin-top:10px">Sementara itu, kamu tetap bisa chat dengan teman dari tab Chat.</p><a class="btn" href="chat.html" style="margin-top:14px">Buka Chat</a></div>`;
+const { profile } = await requireAuth({ shell: '/calls' });
+mountShell('/calls', profile.role === 'admin');
+const f = (i, t, d) => `<div class="acard">${icon(i, 24)}<b>${t}</b><p>${d}</p></div>`;
+$('#body').innerHTML = `<div class="soon-hero"><span class="pulse">${icon('phone', 44)}</span><span class="pill">Segera hadir</span><h2>Panggilan ORVIX</h2><p class="muted">Telepon teman langsung dari ORVIX. Fitur ini sedang disiapkan dan belum bisa dipakai.</p></div>
+<div class="agrid">${f('phone', 'Panggilan suara', 'Ngobrol langsung dengan teman.')}${f('video', 'Panggilan video', 'Bertatap muka dari mana saja.')}${f('clock', 'Riwayat panggilan', 'Masuk, keluar, dan tidak terjawab.')}</div>
+<p class="dim" style="text-align:center;margin-top:18px">Sementara itu, kamu bisa chat dan kirim foto atau video di tab Chat.</p><div style="text-align:center;margin-top:12px"><a class="btn" href="/chat">Buka Chat</a></div>`;
