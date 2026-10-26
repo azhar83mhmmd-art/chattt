@@ -51,3 +51,5 @@ supabase functions deploy register --no-verify-jwt
 3. Authentication, Rate Limits: naikkan batas sign-up/sign-in per IP bila perlu (tidak ada opsi tanpa batas).
 4. Storage: bucket `stories` kini menerima foto dan video (maks. 25 MB per berkas, di bawah batas 50 MB Free Plan). Video dibatasi 30 detik di aplikasi.
 5. Admin pertama ditetapkan lewat SQL: `update public.profiles set role = 'admin' where username = 'usernamemu';`
+
+6. Saluran: jalankan berurutan file di `sql-parts/` (01 sampai 10), satu file per Run, supaya editor SQL di HP tidak crash. Saluran rekomendasi sepenuhnya buatan pengguna (tanpa saluran resmi bawaan). Setelah deploy ulang frontend, tutup tab lalu buka lagi agar JS lama tidak tersangkut cache.
