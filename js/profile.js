@@ -2,8 +2,8 @@
 import { sb, requireAuth, cacheMe, logout, fetchProfiles, purgeAvatarFiles, purgeUserFiles, errMsg } from './supabase.js';
 import { $, esc, icon, avatar, nameWithBadge, toast, setBusy, openModal, confirmDialog, copyText, validateImage, extOf, mountShell } from './utils.js';
 
-const { profile: me } = await requireAuth({ shell: 'profile.html' });
-mountShell('profile.html', me.role === 'admin');
+const { profile: me } = await requireAuth({ shell: '/profile' });
+mountShell('/profile', me.role === 'admin');
 const body = $('#body');
 const VIS = { friends: 'Teman saya', public: 'Semua pengguna', only_me: 'Hanya saya' };
 
@@ -34,7 +34,8 @@ function render() {
   <div class="setrow">${icon('bell', 24)}<span class="grow"><b>Notifikasi</b><small>Notifikasi browser untuk pesan baru</small></span>${sw('swNotif', notifOn, 'Notifikasi')}</div>
   <button class="setrow" id="rowPw">${icon('lock', 24)}<span class="grow"><b>Keamanan akun</b><small>Ubah password</small></span>${icon('chev', 18)}</button>
   <button class="setrow" id="rowBlock">${icon('ban', 24)}<span class="grow"><b>Pengguna diblokir</b><small>Lihat dan buka blokir</small></span>${icon('chev', 18)}</button>
-  <a class="setrow" href="terms.html" style="color:inherit">${icon('list', 24)}<span class="grow"><b>Syarat dan privasi</b><small>Baca aturan dan kebijakan data</small></span>${icon('chev', 18)}</a>
+  <a class="setrow" href="/about" style="color:inherit">${icon('globe', 24)}<span class="grow"><b>Tentang ORVIX</b><small>Kenali ORVIX dan fitur-fiturnya</small></span>${icon('chev', 18)}</a>
+  <a class="setrow" href="/terms" style="color:inherit">${icon('list', 24)}<span class="grow"><b>Syarat dan privasi</b><small>Baca aturan dan kebijakan data</small></span>${icon('chev', 18)}</a>
   <button class="setrow danger" id="rowDel">${icon('trash', 24)}<span class="grow"><b>Hapus akun</b><small>Hapus permanen akun dan semua datamu</small></span></button>
   <button class="setrow danger" id="rowOut">${icon('logout', 24)}<span class="grow"><b>Logout</b></span></button>
   <input type="file" id="file" accept="image/jpeg,image/png,image/webp" hidden>`;
@@ -122,7 +123,7 @@ function deleteModal() {
     const { error } = await sb.rpc('delete_my_account', { confirm_username: cf.value.trim().toLowerCase() });
     if (error) { setBusy(go, false); $('#er', m.el).textContent = errMsg(error); return; }
     cacheMe(null);
-    await sb.auth.signOut(); location.replace('index.html');
+    await sb.auth.signOut(); location.replace('/');
   };
 }
 render();
